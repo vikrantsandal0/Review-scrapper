@@ -9,7 +9,7 @@ const scrapurl = (req, res) => {
         }));
     }, (error) => {
         return res.send({
-            "message": 'Some error occurred while executing.',
+            "message": error ? error.message : 'some error occurred',
             "status": 400,
             "data": {}
         });

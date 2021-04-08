@@ -5,6 +5,35 @@ const logging = require('../../common/logging');
 const commonFun = require('../../common/commonfunction');
 const urlDomain = 'https://www.tigerdirect.com'
 
+
+const fetch = (url) => {
+  return new Promise((resolve, reject) => {
+    const { Worker, isMainThread } = require('worker_threads');
+
+    if (isMainThread) {
+      // This code is executed in the main thread.
+
+      logging.log('Entering main thread');
+
+      // Create the worker.
+      let worker = new Worker(path.join(__dirname, './worker.js'), { workerData: { url } })
+
+      worker.on('message', (result) => {
+        // Listen for messages from the worker and print them.
+        logging.log('Back to main thread', result);
+        resolve(result)
+      })
+
+      worker.on('exit', (code) => {
+        if (code !== 0)
+          reject()
+        else
+          logging.log('Worker stopped ' + code);
+      });
+    }
+  })
+};
+
 const scrapurl = async (payload) => {
   let { URL, apiReference } = payload;
 
@@ -19,16 +48,11 @@ const scrapurl = async (payload) => {
 
     let finalReviews = [];
     while (URL) {
-
-      logging.log('pehla while loop-', URL);
-
       try {
-
         let html = await fetch(URL);
         const $ = cheerio.load(html);
 
         $("#customerReviews").each((index, element) => {
-          //logging.logD('element----' + index + '\n\n', $(element).html() + '\n\n');
           if (index !== 0) {
             let check = $(element).html();
             const $review = cheerio.load(check);
@@ -46,16 +70,18 @@ const scrapurl = async (payload) => {
 
         let next = $('#customerReviews > div:nth-child(1) > dl > dd > a').text();
 
-        logging.log('check if next exists---', next, next ? true : false, next.includes('Next'));
+        logging.log('check if next exists', next, next ? true : false, next.includes('Next'));
 
         if (next && next.includes('Next')) {
           URL = `${urlDomain}${$('#customerReviews > div:nth-child(1) > dl > dd > a').attr('href').trim()}`
-        } else break;
+        } else {
+          break;
+        }
 
       }
       catch (e) {
         logging.logD(apiReference, { EVENT: 'ERROR=====', e });
-        throw 'error in catch'
+        throw new Error(e.message || 'some error occurred');
       }
     }
 
@@ -63,31 +89,9 @@ const scrapurl = async (payload) => {
     return finalReviews
   }
   catch (e) {
-    console.log('error caught----><<<><<<');
+    logging.log('error caught====', e.message);
+    throw e
   }
 }
 
-const fetch = (url) => {
-  return new Promise((resolve, reject) => {
-    const { Worker, isMainThread } = require('worker_threads');
-
-    if (isMainThread) {
-      logging.log('main thread---');
-
-      let worker = new Worker(path.join(__dirname, './worker.js'), { workerData: { url } })
-
-      worker.on('message', (result) => {
-        logging.log('back to main thread--->', result);
-        resolve(result)
-      })
-
-      worker.on('exit', (code) => {
-        if (code !== 0)
-          reject()
-        else
-          logging.log('Worker stopped ' + code);
-      });
-    }
-  })
-};
 exports.scrapurl = scrapurl
