@@ -36,7 +36,7 @@
   ]
 }
 ```
-#### Reviews extraction logic
+### Reviews extraction logic
 **It extracts all reviews on a product. The code traverses all review pages of a product using  Next»**
 **buttons href's untill it reaches the «Previous button and gives the list of all reviews posted**.
 
