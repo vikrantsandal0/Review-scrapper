@@ -11,7 +11,9 @@
 
 ### The whole functionality of web scraping can be broken down into two main steps:
 
-* Fetching the HTML source code of the URL using phantom npm by running it on worker threads to acheive better parallelism as its CPU-intensive work. The parent event loop is always free
+* Fetching the HTML source code of the URL using phantom npm by running it on worker threads to acheive better parallelism as its CPU-intensive work. The parent event loop is always free as each worker will have its own copy of libuv event loop, which is independent of other workers and the parent worker's event loops.
+
+
 * Parsing the raw data using cheerio to extract just the information we are interested in and send the response back.
 
 

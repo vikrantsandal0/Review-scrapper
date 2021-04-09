@@ -47,6 +47,7 @@ const scrapurl = async (payload) => {
     }
 
     let finalReviews = [];
+    //loops over all URL and fetches all reviews , untill it reach << previous button
     while (URL) {
       try {
         let html = await fetch(URL);
@@ -54,14 +55,14 @@ const scrapurl = async (payload) => {
 
         $("#customerReviews").each((index, element) => {
           if (index !== 0) {
-            let check = $(element).html();
-            const $review = cheerio.load(check);
+
             let reviewObj = {
-              rating: $review('body > div > div.leftCol > dl.itemReview > dd:nth-child(2) > div > strong').text(),
-              comment: $review('body > div > div.rightCol > blockquote > p').text(),
-              reviewer: $review('body > div > div.leftCol > dl.reviewer > dd:nth-child(2)').text(),
-              date: $review('body > div > div.leftCol > dl.reviewer > dd:nth-child(4)').text()
+              rating: $(element).find('div.review > div.leftCol > dl.itemReview > dd:nth-child(2) > div > strong').text(),
+              comment: $(element).find('div.review > div.rightCol > blockquote > p').text(),
+              reviewer: $(element).find('div.review > div.leftCol > dl.reviewer > dd:nth-child(2)').text(),
+              date: $(element).find('div.review > div.leftCol > dl.reviewer > dd:nth-child(4)').text()
             }
+
             finalReviews.push(reviewObj);
           }
         })
@@ -69,7 +70,7 @@ const scrapurl = async (payload) => {
         logging.logD(apiReference, { EVENT: 'finalReviewsInAloop', finalReviews });
 
         let next = $('#customerReviews > div:nth-child(1) > dl > dd > a').text();
-
+        //check if there are more reviews on the next page/next>> button 
         logging.log('check if next exists', next, next ? true : false, next.includes('Next'));
 
         if (next && next.includes('Next')) {
