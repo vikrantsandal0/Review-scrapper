@@ -36,13 +36,15 @@
   ]
 }
 ```
-### Reviews extraction logic
+### REVIEWS EXTRACTION LOGIC
 **It extracts all reviews on a product. The code traverses all review pages of a product using  Next»**
 **buttons href's untill it reaches the «Previous button and gives the list of all reviews posted**.
+**If a page has total 10 reviews with 5 on current page and 5 on the next, the crawler fetches all 10**
+**reviews. try different links with different number of reviews.**
 
 
 
- ### FOLDER STRUCTURE AND HOW TO INITIATE
+ ### FOLDER STRUCTURE 
  * the complete structure has been built using Node.js, other libs like phantom , cheerio , joi etc.
  * *modules/scrapping/index.js* contains the parent API for scrapping urls.
  * *common/commonfunction.js* contains API request body and URL validation.
@@ -55,7 +57,7 @@ npm install
 nodemon server.js
 ```
 
-### POSTMAN
+### POSTMAN COLLECTION
 [link](https://www.getpostman.com/collections/8357fd3783402886e55c)
 
 
